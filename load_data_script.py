@@ -1,27 +1,23 @@
-#pip install requests
-#pip install google-cloud-bigquery pandas pyarrow
-
 import requests
 import json
 from google.cloud import bigquery
 import pandas as pd
 
-url = "https://apis.codante.io/olympic-games/events"
-table_id = "ALTEN.SANDBOX.olympic_games_events"
+url = "https://apis.codante.io/olympic-games/countries"
+table_id = "alten-496917.SANDBOX_ARNAU.olympic_games_countries"
 
 # LLAMADA A LA API PARA OBTENER DATA SOBRE LOS JUEGOS OLÍMPICOS 2024
 response = requests.get(url, params={"page": 1})
 
-data = response.json()
-
+response_json = response.json()
+events_list = response_json.get("data", [])
 
 # Creamos dataframe con pds
-df = pd.DataFrame(data)
-
+df = pd.DataFrame(events_list)
+print(df)
 # SUBIDA A BQ
 client = bigquery.Client()
 job = client.load_table_from_dataframe(df, table_id)
 
 job.result()
-
 print(f"Data cargada a BigQuery en la tabla {table_id}")
